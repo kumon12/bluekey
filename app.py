@@ -77,8 +77,10 @@ tab1, tab2 = st.tabs(["💰 Top Trading Value", "🔍 Search Stock"])
 with tab1:
     t1_col1, t1_col2 = st.columns(2)
     with t1_col1:
+        current_time = time.strftime("%Y-%m-%d %H:%M:%S")
+        st.caption(f"🕒 Data fetched at: {current_time}")
         if use_rate_filter:
-            st.subheader(f"거래대금 Top {display_count} 중 {rate_threshold}% 상승 종목")
+            st.subheader(f"거래대금 Top {display_count} 중 {rate_threshold}% 이상 상승 종목")
             st.caption(f"Filter: Rate >= {rate_threshold}%")
         else:
             st.subheader(f"거래대금 Top {display_count} 종목 (전체)")
