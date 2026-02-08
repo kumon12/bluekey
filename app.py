@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import time
+from datetime import datetime, timedelta, timezone
 from scraper import get_stock_info, get_market_indices, get_top_stocks
 from data_processor import clean_price, clean_rate
 from themes import get_theme
@@ -77,13 +78,15 @@ tab1, tab2 = st.tabs(["💰 Top Trading Value", "🔍 Search Stock"])
 with tab1:
     t1_col1, t1_col2 = st.columns(2)
     with t1_col1:
-        current_time = time.strftime("%Y-%m-%d %H:%M:%S")
-        st.caption(f"🕒 Data fetched at: {current_time}")
+        # Explicitly use KST (UTC+9)
+        kst = timezone(timedelta(hours=9))
+        current_time = datetime.now(kst).strftime("%Y-%m-%d %H:%M:%S")
+        st.caption(f"🕒 Data fetched at: {current_time} (KST)")
         if use_rate_filter:
-            st.subheader(f"거래대금 Top {display_count} 중 {rate_threshold}% 이상 상승 종목")
+            st.subheader(f"💰 거래대금 Top {display_count} 중 {rate_threshold}% 이상 상승 종목")
             st.caption(f"Filter: Rate >= {rate_threshold}%")
         else:
-            st.subheader(f"거래대금 Top {display_count} 종목 (전체)")
+            st.subheader(f"💰 거래대금 Top {display_count} 종목 (전체)")
             st.caption("Filter: Rate Off")
             
     with t1_col2:
