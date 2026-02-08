@@ -7,6 +7,14 @@ from themes import get_theme
 
 st.set_page_config(page_title="Blue Key Project", layout="wide")
 
+def style_rate(v):
+    """Style function for Rate column (+ Red, - Blue, Bold)."""
+    if v > 0:
+        return 'color: #d32f2f; font-weight: bold;' # Red
+    elif v < 0:
+        return 'color: #1976d2; font-weight: bold;' # Blue
+    return ''
+
 # Header and Indices Layout
 col_header, col_indices = st.columns([2.5, 1.5])
 
@@ -137,16 +145,6 @@ with tab1:
         # Rename columns to Korean
         display_df.columns = ['거래대금 순위', '종목명', '테마', '현재가', '등락률', '거래대금 (백만)', '시가총액 (억)']
         
-        # Styler function for Rate column (Coloring)
-        # We apply this to the '등락률' column which is now numeric float
-        def style_rate(v):
-            val = v
-            if val > 0:
-                return 'color: #d32f2f; font-weight: bold;' # Red
-            elif val < 0:
-                return 'color: #1976d2; font-weight: bold;' # Blue
-            return ''
-        
         # Display DataFrame with Styler and LinkColumn/NumberColumn
         st.dataframe(
             display_df.style.map(style_rate, subset=['등락률']).format({
@@ -212,7 +210,7 @@ with tab1:
                         tdf_display.columns = ['종목명', '현재가', '등락률', '거래대금 (백만)']
                         
                         st.dataframe(
-                            tdf_display.style.format({
+                            tdf_display.style.map(style_rate, subset=['등락률']).format({
                                 "현재가": "{:,}",
                                 "거래대금 (백만)": "{:,}",
                                 "등락률": "{:+.2f}%"
