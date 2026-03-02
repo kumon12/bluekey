@@ -180,17 +180,20 @@ with tab1:
         st.caption("현재 상위 종목들이 포함된 테마의 모든 구성 종목과 실시간 데이터를 표시합니다.")
         
         # Collect themes from displayed stocks
-        from themes import get_theme_list
-        from scraper import get_theme_details
-        import json
-        import os
-        
-        # Load theme_map.json
-        theme_map = {}
-        map_path = os.path.join(os.path.dirname(__file__), 'theme_map.json')
-        if os.path.exists(map_path):
-            with open(map_path, 'r', encoding='utf-8') as f:
-                theme_map = json.load(f)
+        from themes import get_theme_list, get_theme_members
+
+        # Build quick quote lookup to keep legacy theme table format.
+        quote_lookup = {}
+        for s in raw_stocks + get_top_stocks(limit=100, sort_by='volume'):
+            code = s.get('code')
+            if not code:
+                continue
+            if code not in quote_lookup:
+                quote_lookup[code] = {
+                    'price': s.get('price', 0),
+                    'rate': s.get('rate', 0.0),
+                    'amount': s.get('amount', 0),
+                }
         
         # Identify themes from filtered stocks
         active_themes = set()
@@ -199,14 +202,22 @@ with tab1:
             
         if active_themes:
             for theme in sorted(list(active_themes)):
-                theme_no = theme_map.get(theme)
-                if not theme_no:
+                members = get_theme_members(theme)
+                if not members:
                     continue
                     
                 with st.expander(f"📂 {theme} 관련 전체 종목", expanded=True):
-                    theme_data = get_theme_details(theme_no)
-                    if theme_data:
-                        tdf = pd.DataFrame(theme_data)
+                    if members:
+                        tdf = pd.DataFrame(members)
+                        if 'code' not in tdf.columns:
+                            tdf['code'] = ""
+                        if 'name' not in tdf.columns:
+                            tdf['name'] = ""
+
+                        # Keep previous table schema: price/rate/amount.
+                        tdf['price'] = tdf['code'].apply(lambda c: quote_lookup.get(c, {}).get('price', 0))
+                        tdf['rate'] = tdf['code'].apply(lambda c: quote_lookup.get(c, {}).get('rate', 0.0))
+                        tdf['amount'] = tdf['code'].apply(lambda c: quote_lookup.get(c, {}).get('amount', 0))
                         # Link generation
                         tdf['Link'] = tdf.apply(lambda r: f"https://finance.naver.com/item/main.naver?code={r['code']}&name={urllib.parse.quote(r['name'])}", axis=1)
                         
