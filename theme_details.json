@@ -8,18 +8,19 @@
     "trend_applied": false,
     "themes": [
       {
-        "name": "조선",
-        "score": 1.7,
+        "name": "전력인프라",
+        "score": 3.5,
         "evidence": [
-          "product:선박"
+          "domain:전력",
+          "product:전력"
         ],
         "matched_text": "티엠씨 절연선 및 케이블 제조업 선박용케이블, 해양용케이블, 전력용케이블, 광케이블 등 "
       },
       {
-        "name": "전력인프라",
+        "name": "조선",
         "score": 1.7,
         "evidence": [
-          "product:전력"
+          "product:선박"
         ],
         "matched_text": "티엠씨 절연선 및 케이블 제조업 선박용케이블, 해양용케이블, 전력용케이블, 광케이블 등 "
       }
@@ -430,8 +431,9 @@
     "themes": [
       {
         "name": "전력인프라",
-        "score": 1.7,
+        "score": 3.5,
         "evidence": [
+          "domain:변압기",
           "product:변압기"
         ],
         "matched_text": "산일전기 전동기, 발전기 및 전기 변환 · 공급 · 제어 장치 제조업 유입, 몰드, 주상, 건식 변압기 등 "
@@ -527,6 +529,14 @@
           "sector_hint:엔지니어링"
         ],
         "matched_text": "hd현대마린솔루션 건축기술, 엔지니어링 및 관련 기술 서비스업 am(after market) 솔루션, 친환경 retrofit, 디지털 제어 "
+      },
+      {
+        "name": "친환경에너지",
+        "score": 2.4,
+        "evidence": [
+          "domain:친환경"
+        ],
+        "matched_text": "hd현대마린솔루션 건축기술, 엔지니어링 및 관련 기술 서비스업 am(after market) 솔루션, 친환경 retrofit, 디지털 제어"
       }
     ]
   },
@@ -1158,8 +1168,9 @@
     "themes": [
       {
         "name": "전력인프라",
-        "score": 1.7,
+        "score": 3.5,
         "evidence": [
+          "domain:전력",
           "product:전력"
         ],
         "matched_text": "수산인더스트리 건물설비 설치 공사업 전력발전설비 정비 용역 "
@@ -1241,6 +1252,14 @@
         "matched_text": "lg에너지솔루션 일차전지 및 이차전지 제조업 2차전지 (소형,ess,자동차전지) "
       },
       {
+        "name": "친환경에너지",
+        "score": 2.0,
+        "evidence": [
+          "name:에너지솔루션"
+        ],
+        "matched_text": "lg에너지솔루션 일차전지 및 이차전지 제조업 2차전지 (소형,ess,자동차전지) "
+      },
+      {
         "name": "로봇",
         "score": 1.875,
         "evidence": [
@@ -1250,12 +1269,12 @@
         "matched_text": ""
       },
       {
-        "name": "자동차",
-        "score": 1.7,
+        "name": "전력인프라",
+        "score": 1.8,
         "evidence": [
-          "product:자동차"
+          "domain:ess"
         ],
-        "matched_text": "lg에너지솔루션 일차전지 및 이차전지 제조업 2차전지 (소형,ess,자동차전지) "
+        "matched_text": "lg에너지솔루션 일차전지 및 이차전지 제조업 2차전지 (소형,ess,자동차전지)"
       }
     ]
   },
@@ -1442,6 +1461,15 @@
     "products": "수소승용용기, 매연저감장치 등",
     "trend_applied": false,
     "themes": [
+      {
+        "name": "수소",
+        "score": 3.9,
+        "evidence": [
+          "domain:수소",
+          "product:수소"
+        ],
+        "matched_text": "일진하이솔루스 그외 기타 운송장비 제조업 수소승용용기, 매연저감장치 등 "
+      },
       {
         "name": "기계장비",
         "score": 3.7,
@@ -2148,21 +2176,28 @@
     "trend_applied": false,
     "themes": [
       {
-        "name": "반도체",
-        "score": 3.7,
+        "name": "태양광",
+        "score": 100.0,
         "evidence": [
-          "sector:반도체",
-          "sector_hint:반도체"
+          "override:set"
         ],
-        "matched_text": "hd현대에너지솔루션 반도체 제조업 태양광 셀·모듈, pv시스템, ess "
+        "matched_text": ""
       },
       {
-        "name": "IT",
-        "score": 2.0,
+        "name": "전력인프라",
+        "score": 99.0,
         "evidence": [
-          "name:솔루션"
+          "override:set"
         ],
-        "matched_text": "hd현대에너지솔루션 반도체 제조업 태양광 셀·모듈, pv시스템, ess "
+        "matched_text": ""
+      },
+      {
+        "name": "친환경에너지",
+        "score": 98.0,
+        "evidence": [
+          "override:set"
+        ],
+        "matched_text": ""
       }
     ]
   },
@@ -2263,12 +2298,13 @@
     "trend_applied": false,
     "themes": [
       {
-        "name": "2차전지",
-        "score": 1.2,
+        "name": "수소",
+        "score": 3.9,
         "evidence": [
-          "fallback:sector"
+          "domain:연료전지",
+          "product:연료전지"
         ],
-        "matched_text": "전동기, 발전기 및 전기 변환 · 공급 · 제어 장치 제조업 연료전지"
+        "matched_text": "두산퓨얼셀 전동기, 발전기 및 전기 변환 · 공급 · 제어 장치 제조업 연료전지 "
       }
     ]
   },
@@ -3190,8 +3226,10 @@
     "themes": [
       {
         "name": "전력인프라",
-        "score": 5.92,
+        "score": 7.72,
         "evidence": [
+          "domain:배전",
+          "domain:변압기",
           "news:[단독]'빈살만 특수' 정조준 HD현대일렉트릭, 사우디 비전 2030 전력 설비 라이선스 계약 체결 - 더구루",
           "news:에너지 고속도로사업에 전력기기 수혜 예상, 하나증권 \"HD현대일렉트릭 효성중공업 주목\" - 비즈니스포스트",
           "news:하나증권 \"올해 전력기기 수출액 역대 최대, HD현대일렉트릭 효성중공업 대한전선 주목\" - 비즈니스포스트",
@@ -6505,6 +6543,15 @@
         "matched_text": "kss해운 해상 운송업 특수화물해상운송(액화가스,lpg,암모니아,vcm,석유화학제품 등), 선박대여 "
       },
       {
+        "name": "수소",
+        "score": 3.9,
+        "evidence": [
+          "domain:암모니아",
+          "product:암모니아"
+        ],
+        "matched_text": "kss해운 해상 운송업 특수화물해상운송(액화가스,lpg,암모니아,vcm,석유화학제품 등), 선박대여 "
+      },
+      {
         "name": "화학소재",
         "score": 3.4,
         "evidence": [
@@ -7806,6 +7853,17 @@
     "trend_applied": false,
     "themes": [
       {
+        "name": "친환경에너지",
+        "score": 5.8,
+        "evidence": [
+          "domain:신재생",
+          "domain:재생에너지",
+          "product:신재생",
+          "product:재생에너지"
+        ],
+        "matched_text": "다스코 구조용 금속제품, 탱크 및 증기발생기 제조업 데크플레이트,도로안전시설물(가드레일,강재방호책),건축용단열재보드(경질우레탄보드),신재생에너지사업 "
+      },
+      {
         "name": "철강금속",
         "score": 3.7,
         "evidence": [
@@ -8824,6 +8882,15 @@
     "trend_applied": true,
     "themes": [
       {
+        "name": "수소",
+        "score": 3.9,
+        "evidence": [
+          "domain:수소",
+          "product:수소"
+        ],
+        "matched_text": "포스코인터내셔널 상품 중개업 영업활동의 주요 품목으로 에너지 사업내 천연가스 발전, 태양력, 풍력, 수소 등이 있으며, 트레이딩 사업은 철강 및 철강원료, 이차전지소재, 곡물, 유지, 면방, 바이오플라스틱, 친환경차부품, 인프라 및 산업 플랜트 등이 있음. "
+      },
+      {
         "name": "건설인프라",
         "score": 3.4,
         "evidence": [
@@ -8831,6 +8898,14 @@
           "product:플랜트"
         ],
         "matched_text": "포스코인터내셔널 상품 중개업 영업활동의 주요 품목으로 에너지 사업내 천연가스 발전, 태양력, 풍력, 수소 등이 있으며, 트레이딩 사업은 철강 및 철강원료, 이차전지소재, 곡물, 유지, 면방, 바이오플라스틱, 친환경차부품, 인프라 및 산업 플랜트 등이 있음. "
+      },
+      {
+        "name": "친환경에너지",
+        "score": 2.4,
+        "evidence": [
+          "domain:친환경"
+        ],
+        "matched_text": "포스코인터내셔널 상품 중개업 영업활동의 주요 품목으로 에너지 사업내 천연가스 발전, 태양력, 풍력, 수소 등이 있으며, 트레이딩 사업은 철강 및 철강원료, 이차전지소재, 곡물, 유지, 면방, 바이오플라스틱, 친환경차부품, 인프라 및 산업 플랜트 등이 있음."
       },
       {
         "name": "2차전지",
@@ -8845,22 +8920,6 @@
         "score": 1.7,
         "evidence": [
           "product:바이오"
-        ],
-        "matched_text": "포스코인터내셔널 상품 중개업 영업활동의 주요 품목으로 에너지 사업내 천연가스 발전, 태양력, 풍력, 수소 등이 있으며, 트레이딩 사업은 철강 및 철강원료, 이차전지소재, 곡물, 유지, 면방, 바이오플라스틱, 친환경차부품, 인프라 및 산업 플랜트 등이 있음. "
-      },
-      {
-        "name": "자동차",
-        "score": 1.7,
-        "evidence": [
-          "product:부품"
-        ],
-        "matched_text": "포스코인터내셔널 상품 중개업 영업활동의 주요 품목으로 에너지 사업내 천연가스 발전, 태양력, 풍력, 수소 등이 있으며, 트레이딩 사업은 철강 및 철강원료, 이차전지소재, 곡물, 유지, 면방, 바이오플라스틱, 친환경차부품, 인프라 및 산업 플랜트 등이 있음. "
-      },
-      {
-        "name": "화학소재",
-        "score": 1.7,
-        "evidence": [
-          "product:소재"
         ],
         "matched_text": "포스코인터내셔널 상품 중개업 영업활동의 주요 품목으로 에너지 사업내 천연가스 발전, 태양력, 풍력, 수소 등이 있으며, 트레이딩 사업은 철강 및 철강원료, 이차전지소재, 곡물, 유지, 면방, 바이오플라스틱, 친환경차부품, 인프라 및 산업 플랜트 등이 있음. "
       }
@@ -10067,6 +10126,20 @@
     "trend_applied": false,
     "themes": [
       {
+        "name": "태양광",
+        "score": 10.0,
+        "evidence": [
+          "domain:태양광",
+          "domain:태양전",
+          "domain:태양전지",
+          "product:태양광",
+          "product:태양광모듈",
+          "product:태양전",
+          "product:태양전지"
+        ],
+        "matched_text": "신성이엔지 반도체 제조업 태양전지, 태양광모듈 제조 및 판매, 태양광 발전설치공사, 클린룸, 자동화장비 "
+      },
+      {
         "name": "반도체",
         "score": 3.7,
         "evidence": [
@@ -10998,8 +11071,10 @@
     "themes": [
       {
         "name": "전력인프라",
-        "score": 5.05,
+        "score": 6.85,
         "evidence": [
+          "domain:배전",
+          "domain:변압기",
           "news:특징주, LS ELECTRIC-전력설비 테마 상승세에 12.21% ↑ - 매일경제",
           "news:특징주, LS ELECTRIC-전력설비 테마 상승세에 5.71% ↑ - 매일경제",
           "product:배전",
@@ -11215,12 +11290,15 @@
     "trend_applied": false,
     "themes": [
       {
-        "name": "기타",
-        "score": 0.5,
+        "name": "친환경에너지",
+        "score": 5.8,
         "evidence": [
-          "fallback:default"
+          "domain:신재생",
+          "domain:재생에너지",
+          "product:신재생",
+          "product:재생에너지"
         ],
-        "matched_text": "전기업 증기, 전기, rec(신재생에너지공급인증서)"
+        "matched_text": "sgc에너지 전기업 증기, 전기, rec(신재생에너지공급인증서) "
       }
     ]
   },
@@ -11586,18 +11664,19 @@
     "trend_applied": false,
     "themes": [
       {
-        "name": "로봇",
-        "score": 1.7,
+        "name": "전력인프라",
+        "score": 3.5,
         "evidence": [
-          "product:자동화"
+          "domain:배전",
+          "product:배전"
         ],
         "matched_text": "광명전기 전동기, 발전기 및 전기 변환 · 공급 · 제어 장치 제조업 수배전반,가스절연개폐장치,빌딩자동화시스템,중앙감시반,자동제어반 제조,도소매,무역 "
       },
       {
-        "name": "전력인프라",
+        "name": "로봇",
         "score": 1.7,
         "evidence": [
-          "product:배전"
+          "product:자동화"
         ],
         "matched_text": "광명전기 전동기, 발전기 및 전기 변환 · 공급 · 제어 장치 제조업 수배전반,가스절연개폐장치,빌딩자동화시스템,중앙감시반,자동제어반 제조,도소매,무역 "
       },
@@ -11888,20 +11967,21 @@
     "trend_applied": false,
     "themes": [
       {
+        "name": "전력인프라",
+        "score": 5.2,
+        "evidence": [
+          "domain:배전",
+          "product:배전",
+          "product:전선"
+        ],
+        "matched_text": "일진홀딩스 기타 금융업 전기산업용기기(개폐기,차단기,배전반),자동화시스템,자동차엔진부품,절연전선,금구류,고압선,저압선 제조,판매/전기공사,가스절연차단기 "
+      },
+      {
         "name": "자동차",
         "score": 3.4,
         "evidence": [
           "product:부품",
           "product:자동차"
-        ],
-        "matched_text": "일진홀딩스 기타 금융업 전기산업용기기(개폐기,차단기,배전반),자동화시스템,자동차엔진부품,절연전선,금구류,고압선,저압선 제조,판매/전기공사,가스절연차단기 "
-      },
-      {
-        "name": "전력인프라",
-        "score": 3.4,
-        "evidence": [
-          "product:배전",
-          "product:전선"
         ],
         "matched_text": "일진홀딩스 기타 금융업 전기산업용기기(개폐기,차단기,배전반),자동화시스템,자동차엔진부품,절연전선,금구류,고압선,저압선 제조,판매/전기공사,가스절연차단기 "
       },
@@ -12181,8 +12261,9 @@
     "themes": [
       {
         "name": "전력인프라",
-        "score": 1.7,
+        "score": 3.5,
         "evidence": [
+          "domain:배전",
           "product:배전"
         ],
         "matched_text": "선도전기 전동기, 발전기 및 전기 변환 · 공급 · 제어 장치 제조업 수배전반,중전기기 제조,도매/전기공사 "
@@ -12618,6 +12699,14 @@
           "sector_hint:화학"
         ],
         "matched_text": "kg케미칼 기초 화학물질 제조업 콘크리트혼화제, 비료, 친환경농자재, 수처리제 "
+      },
+      {
+        "name": "친환경에너지",
+        "score": 2.4,
+        "evidence": [
+          "domain:친환경"
+        ],
+        "matched_text": "kg케미칼 기초 화학물질 제조업 콘크리트혼화제, 비료, 친환경농자재, 수처리제"
       }
     ]
   },
@@ -12708,8 +12797,10 @@
     "themes": [
       {
         "name": "전력인프라",
-        "score": 5.4,
+        "score": 7.2,
         "evidence": [
+          "domain:송전",
+          "domain:전력",
           "name:전력",
           "product:송전",
           "product:전력"
@@ -13047,6 +13138,15 @@
     "products": "과산화수소,라텍스,요소수지,수소액화탄산,차아황산소다 제조,판매,디지털카메라용 인화필름 제조,수출",
     "trend_applied": false,
     "themes": [
+      {
+        "name": "수소",
+        "score": 3.9,
+        "evidence": [
+          "domain:수소",
+          "product:수소"
+        ],
+        "matched_text": "한솔케미칼 기초 화학물질 제조업 과산화수소,라텍스,요소수지,수소액화탄산,차아황산소다 제조,판매,디지털카메라용 인화필름 제조,수출 "
+      },
       {
         "name": "화학소재",
         "score": 3.7,
@@ -14606,8 +14706,9 @@
     "themes": [
       {
         "name": "전력인프라",
-        "score": 3.7,
+        "score": 5.5,
         "evidence": [
+          "domain:전력",
           "name:전선",
           "product:전력"
         ],
@@ -15652,8 +15753,9 @@
     "themes": [
       {
         "name": "전력인프라",
-        "score": 3.4,
+        "score": 5.2,
         "evidence": [
+          "domain:전력",
           "product:전력",
           "product:전선"
         ],
@@ -17045,6 +17147,15 @@
           "sector_hint:화학"
         ],
         "matched_text": "롯데정밀화학 기초 화학물질 제조업 염소·셀룰로스계열, 암모니아 계열, 전자재료 등 화학제품 제조 "
+      },
+      {
+        "name": "수소",
+        "score": 3.9,
+        "evidence": [
+          "domain:암모니아",
+          "product:암모니아"
+        ],
+        "matched_text": "롯데정밀화학 기초 화학물질 제조업 염소·셀룰로스계열, 암모니아 계열, 전자재료 등 화학제품 제조 "
       }
     ]
   },
@@ -18178,18 +18289,19 @@
     "trend_applied": false,
     "themes": [
       {
-        "name": "핀테크",
-        "score": 2.4,
+        "name": "전력인프라",
+        "score": 3.5,
         "evidence": [
-          "sector_hint:금융"
+          "domain:변압기",
+          "product:변압기"
         ],
         "matched_text": "효성 기타 금융업 스판덱스,합성원사,나일론,폴리에스터,타이어코드지,pet병,수지제품,중전기제품(변압기,차단기),사무용기계,컴퓨터 제조/건축공사 "
       },
       {
-        "name": "전력인프라",
-        "score": 1.7,
+        "name": "핀테크",
+        "score": 2.4,
         "evidence": [
-          "product:변압기"
+          "sector_hint:금융"
         ],
         "matched_text": "효성 기타 금융업 스판덱스,합성원사,나일론,폴리에스터,타이어코드지,pet병,수지제품,중전기제품(변압기,차단기),사무용기계,컴퓨터 제조/건축공사 "
       },
@@ -18236,6 +18348,15 @@
           "news:미국 원전 사업 발주 기대, 하나증권 \"두산에너빌리티 한전KPS 성광벤드 주목\" - 비즈니스포스트",
           "news:상법 개정에 지주사 수혜 기대, 하나증권 \"두산 한화 CJ SK 주목\" - 비즈니스포스트",
           "sector_hint:금융"
+        ],
+        "matched_text": "두산 기타 금융업 동박적층판 등 제조 및 판매, 유압기기 등 제조 및 판매, 지게차 제조 및 판매, it 시스템 개발/운영 서비스 등, 연료전지 등 "
+      },
+      {
+        "name": "수소",
+        "score": 3.9,
+        "evidence": [
+          "domain:연료전지",
+          "product:연료전지"
         ],
         "matched_text": "두산 기타 금융업 동박적층판 등 제조 및 판매, 유압기기 등 제조 및 판매, 지게차 제조 및 판매, it 시스템 개발/운영 서비스 등, 연료전지 등 "
       },
@@ -18769,8 +18890,9 @@
     "themes": [
       {
         "name": "전력인프라",
-        "score": 3.7,
+        "score": 5.5,
         "evidence": [
+          "domain:전력",
           "name:전선",
           "product:전력"
         ],
@@ -19027,12 +19149,13 @@
     "trend_applied": false,
     "themes": [
       {
-        "name": "기타",
-        "score": 0.5,
+        "name": "수소",
+        "score": 3.9,
         "evidence": [
-          "fallback:default"
+          "domain:수소",
+          "product:수소"
         ],
-        "matched_text": "연료용 가스 제조 및 배관공급업 수소가스, 고순도 수소가스"
+        "matched_text": "덕양에너젠 연료용 가스 제조 및 배관공급업 수소가스, 고순도 수소가스 "
       }
     ]
   },
@@ -20820,6 +20943,15 @@
     "trend_applied": false,
     "themes": [
       {
+        "name": "수소",
+        "score": 3.9,
+        "evidence": [
+          "domain:수소",
+          "product:수소"
+        ],
+        "matched_text": "원일티엔아이 일반 목적용 기계 제조업 수소저장합금, 고압연소식기화기 "
+      },
+      {
         "name": "기계장비",
         "score": 3.7,
         "evidence": [
@@ -20884,6 +21016,14 @@
           "product:전해액"
         ],
         "matched_text": "에이아이코리아 특수 목적용 기계 제조업 2차전지 중앙 전해액 공급시스템(cess), 프로세스파이핑, 건식세정장비 "
+      },
+      {
+        "name": "전력인프라",
+        "score": 1.8,
+        "evidence": [
+          "domain:ess"
+        ],
+        "matched_text": "에이아이코리아 특수 목적용 기계 제조업 2차전지 중앙 전해액 공급시스템(cess), 프로세스파이핑, 건식세정장비"
       }
     ]
   },
@@ -23149,12 +23289,12 @@
     "trend_applied": false,
     "themes": [
       {
-        "name": "기타",
-        "score": 0.5,
+        "name": "전력인프라",
+        "score": 1.8,
         "evidence": [
-          "fallback:default"
+          "domain:ess"
         ],
-        "matched_text": "전동기, 발전기 및 전기 변환 · 공급 · 제어 장치 제조업 수냉식 냉각시스템 ess parts, 공랭식 ess module parts, ev module 및 내연기관 parts"
+        "matched_text": "한중엔시에스 전동기, 발전기 및 전기 변환 · 공급 · 제어 장치 제조업 수냉식 냉각시스템 ess parts, 공랭식 ess module parts, ev module 및 내연기관 parts"
       }
     ]
   },
@@ -26269,6 +26409,17 @@
     "trend_applied": false,
     "themes": [
       {
+        "name": "친환경에너지",
+        "score": 5.8,
+        "evidence": [
+          "domain:신재생",
+          "domain:재생에너지",
+          "product:신재생",
+          "product:재생에너지"
+        ],
+        "matched_text": "금양그린파워 전기 및 통신 공사업 플랜트, 발전소 및 신재생에너지 발전소 공사 및 용역 "
+      },
+      {
         "name": "통신",
         "score": 3.7,
         "evidence": [
@@ -26529,6 +26680,14 @@
         "score": 2.0,
         "evidence": [
           "name:솔루션"
+        ],
+        "matched_text": "삼기에너지솔루션즈 자동차 신품 부품 제조업 배터리(이차전지) 부품 (엔드플레이트) "
+      },
+      {
+        "name": "친환경에너지",
+        "score": 2.0,
+        "evidence": [
+          "name:에너지솔루션"
         ],
         "matched_text": "삼기에너지솔루션즈 자동차 신품 부품 제조업 배터리(이차전지) 부품 (엔드플레이트) "
       }
@@ -27551,6 +27710,15 @@
           "sector_hint:기계"
         ],
         "matched_text": "hpsp 특수 목적용 기계 제조업 고압 수소 어닐링 장비 "
+      },
+      {
+        "name": "수소",
+        "score": 3.9,
+        "evidence": [
+          "domain:수소",
+          "product:수소"
+        ],
+        "matched_text": "hpsp 특수 목적용 기계 제조업 고압 수소 어닐링 장비 "
       }
     ]
   },
@@ -27758,12 +27926,15 @@
     "trend_applied": false,
     "themes": [
       {
-        "name": "2차전지",
-        "score": 1.2,
+        "name": "수소",
+        "score": 5.6,
         "evidence": [
-          "fallback:sector"
+          "domain:수소",
+          "domain:연료전지",
+          "product:수소",
+          "product:연료전지"
         ],
-        "matched_text": "전동기, 발전기 및 전기 변환 · 공급 · 제어 장치 제조업 잠수함용 연료전지모듈, 건물용 연료전지 시스템, 수소충전소 구축"
+        "matched_text": "범한퓨얼셀 전동기, 발전기 및 전기 변환 · 공급 · 제어 장치 제조업 잠수함용 연료전지모듈, 건물용 연료전지 시스템, 수소충전소 구축 "
       }
     ]
   },
@@ -27824,6 +27995,17 @@
     "trend_applied": false,
     "themes": [
       {
+        "name": "친환경에너지",
+        "score": 5.8,
+        "evidence": [
+          "domain:신재생",
+          "domain:재생에너지",
+          "product:신재생",
+          "product:재생에너지"
+        ],
+        "matched_text": "대명에너지 건물 건설업 신재생에너지 발전 공사 및 용역 "
+      },
+      {
         "name": "건설인프라",
         "score": 3.7,
         "evidence": [
@@ -27864,9 +28046,21 @@
     "trend_applied": false,
     "themes": [
       {
-        "name": "전력인프라",
-        "score": 1.7,
+        "name": "태양광",
+        "score": 6.6,
         "evidence": [
+          "domain:태양광",
+          "domain:태양광발전",
+          "product:태양광",
+          "product:태양광발전"
+        ],
+        "matched_text": "지투파워 전동기, 발전기 및 전기 변환 · 공급 · 제어 장치 제조업 수·배전반, 태양광발전시스템, 인버터(pcs) "
+      },
+      {
+        "name": "전력인프라",
+        "score": 3.5,
+        "evidence": [
+          "domain:배전",
           "product:배전"
         ],
         "matched_text": "지투파워 전동기, 발전기 및 전기 변환 · 공급 · 제어 장치 제조업 수·배전반, 태양광발전시스템, 인버터(pcs) "
@@ -27907,6 +28101,15 @@
     "products": "TV스탠드, 전기 수소차 부품 등",
     "trend_applied": false,
     "themes": [
+      {
+        "name": "수소",
+        "score": 3.9,
+        "evidence": [
+          "domain:수소",
+          "product:수소"
+        ],
+        "matched_text": "세아메카닉스 기타 금속 가공제품 제조업 tv스탠드, 전기 수소차 부품 등 "
+      },
       {
         "name": "철강금속",
         "score": 3.7,
@@ -28259,8 +28462,9 @@
     "themes": [
       {
         "name": "전력인프라",
-        "score": 1.7,
+        "score": 3.5,
         "evidence": [
+          "domain:전력",
           "product:전력"
         ],
         "matched_text": "이지트로닉스 전동기, 발전기 및 전기 변환 · 공급 · 제어 장치 제조업 전력변환장치 "
@@ -31132,18 +31336,19 @@
     "trend_applied": false,
     "themes": [
       {
-        "name": "자동차",
-        "score": 2.3,
+        "name": "전력인프라",
+        "score": 3.5,
         "evidence": [
-          "sector:부품"
+          "domain:전력",
+          "product:전력"
         ],
         "matched_text": "ps일렉트로닉스 전자부품 제조업 전력증폭기 모듈(pam) "
       },
       {
-        "name": "전력인프라",
-        "score": 1.7,
+        "name": "자동차",
+        "score": 2.3,
         "evidence": [
-          "product:전력"
+          "sector:부품"
         ],
         "matched_text": "ps일렉트로닉스 전자부품 제조업 전력증폭기 모듈(pam) "
       }
@@ -33056,12 +33261,13 @@
     "trend_applied": false,
     "themes": [
       {
-        "name": "기타",
-        "score": 0.5,
+        "name": "태양광",
+        "score": 4.9,
         "evidence": [
-          "fallback:default"
+          "domain:태양광",
+          "product:태양광"
         ],
-        "matched_text": "전동기, 발전기 및 전기 변환 · 공급 · 제어 장치 제조업 태양광 인버터 등"
+        "matched_text": "캐리 전동기, 발전기 및 전기 변환 · 공급 · 제어 장치 제조업 태양광 인버터 등 "
       }
     ]
   },
@@ -34443,12 +34649,13 @@
     "trend_applied": false,
     "themes": [
       {
-        "name": "2차전지",
-        "score": 1.2,
+        "name": "수소",
+        "score": 3.9,
         "evidence": [
-          "fallback:sector"
+          "domain:연료전지",
+          "product:연료전지"
         ],
-        "matched_text": "전동기, 발전기 및 전기 변환 · 공급 · 제어 장치 제조업 건물용 연료전지, 발전용 연료전지"
+        "matched_text": "에스퓨얼셀 전동기, 발전기 및 전기 변환 · 공급 · 제어 장치 제조업 건물용 연료전지, 발전용 연료전지 "
       }
     ]
   },
@@ -34984,8 +35191,9 @@
     "themes": [
       {
         "name": "전력인프라",
-        "score": 1.7,
+        "score": 3.5,
         "evidence": [
+          "domain:전력",
           "product:전력"
         ],
         "matched_text": "파워넷 전동기, 발전기 및 전기 변환 · 공급 · 제어 장치 제조업 전력변환장치 "
@@ -37530,6 +37738,14 @@
         "matched_text": "유니테크노 자동차 신품 부품 제조업 자동차 부품, 전기차 부품, 배터리 셀케이스, ess 배터리 모듈, sbw 및 epb, eps 전동화 부품 "
       },
       {
+        "name": "전력인프라",
+        "score": 1.8,
+        "evidence": [
+          "domain:ess"
+        ],
+        "matched_text": "유니테크노 자동차 신품 부품 제조업 자동차 부품, 전기차 부품, 배터리 셀케이스, ess 배터리 모듈, sbw 및 epb, eps 전동화 부품"
+      },
+      {
         "name": "2차전지",
         "score": 1.7,
         "evidence": [
@@ -37733,18 +37949,19 @@
     "trend_applied": false,
     "themes": [
       {
-        "name": "로봇",
-        "score": 1.7,
+        "name": "전력인프라",
+        "score": 3.5,
         "evidence": [
-          "product:자동화"
+          "domain:배전",
+          "product:배전"
         ],
         "matched_text": "피앤씨테크 전동기, 발전기 및 전기 변환 · 공급 · 제어 장치 제조업 배전자동화단말장치 "
       },
       {
-        "name": "전력인프라",
+        "name": "로봇",
         "score": 1.7,
         "evidence": [
-          "product:배전"
+          "product:자동화"
         ],
         "matched_text": "피앤씨테크 전동기, 발전기 및 전기 변환 · 공급 · 제어 장치 제조업 배전자동화단말장치 "
       }
@@ -40122,8 +40339,10 @@
     "themes": [
       {
         "name": "전력인프라",
-        "score": 5.1,
+        "score": 6.9,
         "evidence": [
+          "domain:배전",
+          "domain:전력",
           "product:배전",
           "product:전력",
           "product:전력기기"
@@ -42210,8 +42429,9 @@
       },
       {
         "name": "전력인프라",
-        "score": 1.7,
+        "score": 3.5,
         "evidence": [
+          "domain:배전",
           "product:배전"
         ],
         "matched_text": "제룡산업 구조용 금속제품, 탱크 및 증기발생기 제조업 송배전 금구류 및 합성수지 제품 "
@@ -42272,6 +42492,15 @@
     "products": "저메인가스,디실란,아산화질소,암모니아 등",
     "trend_applied": false,
     "themes": [
+      {
+        "name": "수소",
+        "score": 3.9,
+        "evidence": [
+          "domain:암모니아",
+          "product:암모니아"
+        ],
+        "matched_text": "원익머트리얼즈 기초 화학물질 제조업 저메인가스,디실란,아산화질소,암모니아 등 "
+      },
       {
         "name": "화학소재",
         "score": 3.7,
@@ -42940,8 +43169,9 @@
       },
       {
         "name": "전력인프라",
-        "score": 1.7,
+        "score": 3.5,
         "evidence": [
+          "domain:배전",
           "product:배전"
         ],
         "matched_text": "대양전기공업 선박 및 보트 건조업 해상용 조명등기구, (함정용)전자시스템, 배전반류 등 "
@@ -43271,6 +43501,15 @@
     "trend_applied": false,
     "themes": [
       {
+        "name": "수소",
+        "score": 3.9,
+        "evidence": [
+          "domain:수소",
+          "product:수소"
+        ],
+        "matched_text": "제이엔케이글로벌 일반 목적용 기계 제조업 산업용가열로, 수소충전소 "
+      },
+      {
         "name": "기계장비",
         "score": 3.7,
         "evidence": [
@@ -43348,6 +43587,17 @@
     "products": "LED 외관검사장비, 반도체 외관검사장비, 태양전지 외관검사장비등",
     "trend_applied": false,
     "themes": [
+      {
+        "name": "태양광",
+        "score": 6.6,
+        "evidence": [
+          "domain:태양전",
+          "domain:태양전지",
+          "product:태양전",
+          "product:태양전지"
+        ],
+        "matched_text": "인텍플러스 특수 목적용 기계 제조업 led 외관검사장비, 반도체 외관검사장비, 태양전지 외관검사장비등 "
+      },
       {
         "name": "기계장비",
         "score": 5.4,
@@ -43844,12 +44094,13 @@
     "trend_applied": false,
     "themes": [
       {
-        "name": "기타",
-        "score": 0.5,
+        "name": "태양광",
+        "score": 4.9,
         "evidence": [
-          "fallback:default"
+          "domain:태양광",
+          "product:태양광"
         ],
-        "matched_text": "전동기, 발전기 및 전기 변환 · 공급 · 제어 장치 제조업 핵융합 전원장치, 플라즈마 전원장치, 태양광 cvd 전원장치, 산업용 특수정류기"
+        "matched_text": "다원시스 전동기, 발전기 및 전기 변환 · 공급 · 제어 장치 제조업 핵융합 전원장치, 플라즈마 전원장치, 태양광 cvd 전원장치, 산업용 특수정류기 "
       }
     ]
   },
@@ -45334,6 +45585,17 @@
     "trend_applied": false,
     "themes": [
       {
+        "name": "태양광",
+        "score": 6.6,
+        "evidence": [
+          "domain:태양광",
+          "domain:태양광발전",
+          "product:태양광",
+          "product:태양광발전"
+        ],
+        "matched_text": "sdn 기계장비 및 관련 물품 도매업 태양광기자재 및 선박용엔진 도매, 태양광발전시스템 구축 및 설계 "
+      },
+      {
         "name": "기계장비",
         "score": 6.0,
         "evidence": [
@@ -45735,6 +45997,17 @@
     "products": "ESCO 사업, 신재생에너지 사업",
     "trend_applied": false,
     "themes": [
+      {
+        "name": "친환경에너지",
+        "score": 5.8,
+        "evidence": [
+          "domain:신재생",
+          "domain:재생에너지",
+          "product:신재생",
+          "product:재생에너지"
+        ],
+        "matched_text": "hlb생명과학 의료용품 및 기타 의약 관련제품 제조업 esco 사업, 신재생에너지 사업 "
+      },
       {
         "name": "바이오",
         "score": 2.4,
@@ -46676,12 +46949,18 @@
     "trend_applied": false,
     "themes": [
       {
-        "name": "2차전지",
-        "score": 1.2,
+        "name": "태양광",
+        "score": 10.0,
         "evidence": [
-          "fallback:sector"
+          "domain:태양광",
+          "domain:태양전",
+          "domain:태양전지",
+          "product:태양광",
+          "product:태양광발전",
+          "product:태양전",
+          "product:태양전지"
         ],
-        "matched_text": "전동기, 발전기 및 전기 변환 · 공급 · 제어 장치 제조업 태양광발전시스템,태양전지모듈"
+        "matched_text": "에스에너지 전동기, 발전기 및 전기 변환 · 공급 · 제어 장치 제조업 태양광발전시스템,태양전지모듈 "
       }
     ]
   },
@@ -46913,8 +47192,9 @@
     "themes": [
       {
         "name": "전력인프라",
-        "score": 1.7,
+        "score": 3.5,
         "evidence": [
+          "domain:전력",
           "product:전력"
         ],
         "matched_text": "옴니시스템 측정, 시험, 항해, 제어 및 기타 정밀기기 제조업; 광학기기 제외 전자식전력량계,설비미터,원격검침시스템 "
@@ -46949,8 +47229,9 @@
     "themes": [
       {
         "name": "전력인프라",
-        "score": 1.7,
+        "score": 3.5,
         "evidence": [
+          "domain:전력",
           "product:전력"
         ],
         "matched_text": "웨이브일렉트로 측정, 시험, 항해, 제어 및 기타 정밀기기 제조업; 광학기기 제외 이동통신중계기용전력증폭기 "
@@ -48180,6 +48461,14 @@
           "product:바이오"
         ],
         "matched_text": "진바이오텍 산업용 농·축산물 및 동·식물 도매업 펩소이젠(식물성단백질),바이오스타치(가공전분),나투포멘(친환경생균제),락토케어(항생제대체형미생물제제)등 "
+      },
+      {
+        "name": "친환경에너지",
+        "score": 2.4,
+        "evidence": [
+          "domain:친환경"
+        ],
+        "matched_text": "진바이오텍 산업용 농·축산물 및 동·식물 도매업 펩소이젠(식물성단백질),바이오스타치(가공전분),나투포멘(친환경생균제),락토케어(항생제대체형미생물제제)등"
       }
     ]
   },
@@ -49447,6 +49736,17 @@
     "products": "전도성페이스트,태양전지 페이스트,고분자재료,PIG,이차전지용음극재료",
     "trend_applied": false,
     "themes": [
+      {
+        "name": "태양광",
+        "score": 6.6,
+        "evidence": [
+          "domain:태양전",
+          "domain:태양전지",
+          "product:태양전",
+          "product:태양전지"
+        ],
+        "matched_text": "대주전자재료 전자부품 제조업 전도성페이스트,태양전지 페이스트,고분자재료,pig,이차전지용음극재료 "
+      },
       {
         "name": "2차전지",
         "score": 3.4,
@@ -51109,6 +51409,15 @@
     "products": "풍력 및 태양광 발전업",
     "trend_applied": false,
     "themes": [
+      {
+        "name": "태양광",
+        "score": 4.9,
+        "evidence": [
+          "domain:태양광",
+          "product:태양광"
+        ],
+        "matched_text": "에이전트ai 전기업 풍력 및 태양광 발전업 "
+      },
       {
         "name": "AI",
         "score": 2.0,
@@ -53750,8 +54059,9 @@
       },
       {
         "name": "전력인프라",
-        "score": 1.7,
+        "score": 3.5,
         "evidence": [
+          "domain:전력",
           "product:전력"
         ],
         "matched_text": "티에스넥스젠 특수 목적용 기계 제조업 발전설비 damper, 전력설비 busway "
@@ -57205,8 +57515,10 @@
     "themes": [
       {
         "name": "전력인프라",
-        "score": 3.4,
+        "score": 5.2,
         "evidence": [
+          "domain:배전",
+          "domain:변압기",
           "product:배전",
           "product:변압기"
         ],
@@ -57669,6 +57981,14 @@
           "sector_hint:자동차"
         ],
         "matched_text": "뉴인텍 자동차 신품 부품 제조업 친환경 차량용 커패시터 "
+      },
+      {
+        "name": "친환경에너지",
+        "score": 2.4,
+        "evidence": [
+          "domain:친환경"
+        ],
+        "matched_text": "뉴인텍 자동차 신품 부품 제조업 친환경 차량용 커패시터"
       }
     ]
   },
@@ -57737,6 +58057,14 @@
     "products": "건설관련설비,ACESS FLOOR,소음기,CHAMMBER,PFP UNIT,BY-PASS UNIT,DUCT,철구조물",
     "trend_applied": false,
     "themes": [
+      {
+        "name": "전력인프라",
+        "score": 1.8,
+        "evidence": [
+          "domain:ess"
+        ],
+        "matched_text": "세보엠이씨 건물설비 설치 공사업 건설관련설비,acess floor,소음기,chammber,pfp unit,by-pass unit,duct,철구조물"
+      },
       {
         "name": "IT",
         "score": 1.7,
@@ -58834,8 +59162,9 @@
       },
       {
         "name": "전력인프라",
-        "score": 1.7,
+        "score": 3.5,
         "evidence": [
+          "domain:배전",
           "product:배전"
         ],
         "matched_text": "보성파워텍 구조용 금속제품, 탱크 및 증기발생기 제조업 송배전용자재 "
@@ -59164,6 +59493,14 @@
           "sector_hint:의료"
         ],
         "matched_text": "피제이전자 의료용 기기 제조업 ems business(의료용기기제조외) "
+      },
+      {
+        "name": "전력인프라",
+        "score": 1.8,
+        "evidence": [
+          "domain:ess"
+        ],
+        "matched_text": "피제이전자 의료용 기기 제조업 ems business(의료용기기제조외)"
       }
     ]
   },
@@ -59526,20 +59863,22 @@
     "trend_applied": false,
     "themes": [
       {
+        "name": "전력인프라",
+        "score": 5.2,
+        "evidence": [
+          "domain:배전",
+          "domain:송전",
+          "product:배전",
+          "product:송전"
+        ],
+        "matched_text": "세명전기 기타 금속 가공제품 제조업 154kv, 345kv, 765kv 송전,변전,배전용 금구류, 섬유직기용 섹셔날 빔 "
+      },
+      {
         "name": "철강금속",
         "score": 3.7,
         "evidence": [
           "sector:금속",
           "sector_hint:금속"
-        ],
-        "matched_text": "세명전기 기타 금속 가공제품 제조업 154kv, 345kv, 765kv 송전,변전,배전용 금구류, 섬유직기용 섹셔날 빔 "
-      },
-      {
-        "name": "전력인프라",
-        "score": 3.4,
-        "evidence": [
-          "product:배전",
-          "product:송전"
         ],
         "matched_text": "세명전기 기타 금속 가공제품 제조업 154kv, 345kv, 765kv 송전,변전,배전용 금구류, 섬유직기용 섹셔날 빔 "
       }
@@ -59598,6 +59937,17 @@
     "products": "적산계기, 전기차충전기, 신재생에너지 발전소 설치",
     "trend_applied": false,
     "themes": [
+      {
+        "name": "친환경에너지",
+        "score": 5.8,
+        "evidence": [
+          "domain:신재생",
+          "domain:재생에너지",
+          "product:신재생",
+          "product:재생에너지"
+        ],
+        "matched_text": "피에스텍 측정, 시험, 항해, 제어 및 기타 정밀기기 제조업; 광학기기 제외 적산계기, 전기차충전기, 신재생에너지 발전소 설치 "
+      },
       {
         "name": "자동차",
         "score": 1.7,

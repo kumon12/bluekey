@@ -75,6 +75,14 @@ SECTOR_THEME_KEYWORDS = {
 }
 
 
+# Extra theme pack to cover renewable/energy transitions.
+EXTRA_THEME_RULES = {
+    "태양광": ["태양광", "태양전지", "태양전", "solar", "photovoltaic", "태양광모듈", "태양광발전"],
+    "친환경에너지": ["신재생", "재생에너지", "그린에너지", "친환경 에너지", "탄소중립", "에너지솔루션"],
+    "수소": ["수소", "암모니아", "연료전지", "수전해", "hydrogen"],
+}
+
+
 @dataclass
 class StockRecord:
     code: str
@@ -93,6 +101,59 @@ def load_json(path: Path, default: Any) -> Any:
             return json.load(f)
     except Exception:
         return default
+
+
+def merge_with_extra_rules(rules: dict[str, list[str]]) -> dict[str, list[str]]:
+    merged: dict[str, list[str]] = {}
+    for theme, kws in (rules or {}).items():
+        if isinstance(kws, list):
+            merged[str(theme)] = [str(x) for x in kws]
+    for theme, kws in EXTRA_THEME_RULES.items():
+        current = merged.setdefault(theme, [])
+        for kw in kws:
+            if kw not in current:
+                current.append(kw)
+    return merged
+
+
+def apply_domain_enrichment(
+    stock: "StockRecord",
+    scores: list[dict[str, Any]],
+    rules: dict[str, list[str]],
+) -> list[dict[str, Any]]:
+    text = clean_text(f"{stock.name} {stock.sector} {stock.products}")
+    hints = [
+        ("태양광", ["태양광", "태양전지", "태양전", "solar", "photovoltaic", "태양광발전"], 3.2),
+        ("친환경에너지", ["신재생", "재생에너지", "친환경", "탄소중립", "그린에너지"], 2.4),
+        ("수소", ["수소", "연료전지", "암모니아", "수전해", "hydrogen"], 2.2),
+        ("전력인프라", ["전력", "전력망", "송전", "배전", "변압기", "ess"], 1.8),
+    ]
+
+    merged = {x["name"]: dict(x) for x in scores}
+    for theme, keys, base_score in hints:
+        if theme not in rules:
+            continue
+        hits = [k for k in keys if clean_text(k) in text]
+        if not hits:
+            continue
+        if theme in merged:
+            merged[theme]["score"] = round(float(merged[theme].get("score", 0.0)) + base_score, 3)
+            evidence = merged[theme].get("evidence", [])
+            if not isinstance(evidence, list):
+                evidence = []
+            evidence.extend([f"domain:{h}" for h in hits[:3]])
+            merged[theme]["evidence"] = sorted(set(str(e) for e in evidence))
+        else:
+            merged[theme] = {
+                "name": theme,
+                "score": round(base_score, 3),
+                "evidence": [f"domain:{h}" for h in hits[:3]],
+                "matched_text": text[:280],
+            }
+
+    out = list(merged.values())
+    out.sort(key=lambda x: x["score"], reverse=True)
+    return out
 
 
 def load_trend_signals(path: Path) -> dict[str, list[dict[str, Any]]]:
@@ -456,6 +517,7 @@ def classify_all(
 
     for stock in universe:
         scored = score_stock_themes(stock, rules)
+        scored = apply_domain_enrichment(stock, scored, rules)
         # Give higher trend influence to diversified names (multi-theme or holdings).
         diversified = (len(scored) >= 2) or ("홀딩스" in stock.name) or ("지주" in stock.name)
         tw = trend_weight * (1.25 if diversified else 1.0)
@@ -509,6 +571,7 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
     rules = load_json(Path(args.rules), DEFAULT_THEME_RULES)
+    rules = merge_with_extra_rules(rules)
     overrides = load_json(Path(args.overrides), {"by_code": {}, "by_name": {}})
     trend_signals = load_trend_signals(Path(args.trend_signals))
 
