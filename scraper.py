@@ -1,5 +1,61 @@
 import requests
 from bs4 import BeautifulSoup
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+
+def _parse_int(text):
+    text = (text or "").strip().replace(",", "")
+    return int(text) if text.isdigit() else 0
+
+
+def _parse_rate(text):
+    raw = (text or "").strip().replace("%", "").replace(",", "")
+    if not raw:
+        return 0.0
+    try:
+        return float(raw)
+    except ValueError:
+        return 0.0
+
+
+def _extract_stock_snapshot(soup, code):
+    name_tag = soup.select_one('.wrap_company h2 a')
+    price_tag = soup.select_one('.no_today .blind')
+    if not name_tag or not price_tag:
+        return None
+
+    name = name_tag.text.strip()
+    price = _parse_int(price_tag.text)
+
+    exday_blinds = soup.select('.no_exday .blind')
+    rate = _parse_rate(exday_blinds[1].text if len(exday_blinds) >= 2 else "0")
+
+    volume = 0
+    amount = 0
+    try:
+        rows = soup.select('.no_info tr')
+        if len(rows) >= 2:
+            first_row = rows[0].select('td')
+            second_row = rows[1].select('td')
+            volume_tag = first_row[2].select_one('.blind') if len(first_row) >= 3 else None
+            amount_tag = second_row[2].select_one('.blind') if len(second_row) >= 3 else None
+            volume = _parse_int(volume_tag.text if volume_tag else "0")
+            amount = _parse_int(amount_tag.text if amount_tag else "0")
+    except IndexError:
+        pass
+
+    if amount == 0 and price and volume:
+        amount = (price * volume) // 1000000
+
+    return {
+        "name": name,
+        "code": code,
+        "price": price,
+        "current_price": f"{price:,}" if price else "0",
+        "rate": rate,
+        "volume": volume,
+        "amount": amount,
+    }
 
 def get_stock_info(code):
     """
@@ -13,39 +69,51 @@ def get_stock_info(code):
     try:
         response = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'})
         response.raise_for_status()
-        # Naver Finance uses UTF-8 encoding
         soup = BeautifulSoup(response.content.decode('utf-8', 'replace'), 'html.parser')
-
-        # Basic Info
-        name = soup.select_one('.wrap_company h2 a').text
-        price = soup.select_one('.no_today .blind').text
-        
-        # Change rate (includes amount and percentage)
-        # .no_exday .blind returns [change_amount, change_rate]
-        exday_blinds = soup.select('.no_exday .blind')
-        if len(exday_blinds) >= 2:
-            rate = exday_blinds[1].text
-        else:
-            rate = "0.0"
-
-        # Volume
-        # Found in table with class 'no_info', first row, third column
-        try:
-            volume_tag = soup.select('.no_info tr')[0].select('td')[2].select_one('.blind')
-            volume = volume_tag.text if volume_tag else "0"
-        except IndexError:
-            volume = "0"
-
+        snapshot = _extract_stock_snapshot(soup, code)
+        if not snapshot:
+            return None
         return {
-            "name": name,
+            "name": snapshot["name"],
             "code": code,
-            "current_price": price,
-            "rate": rate,
-            "volume": volume
+            "current_price": snapshot["current_price"],
+            "rate": snapshot["rate"],
+            "volume": f"{snapshot['volume']:,}" if snapshot["volume"] else "0",
+            "amount": snapshot["amount"],
         }
     except Exception as e:
         print(f"Error fetching data for {code}: {e}")
         return None
+
+
+def get_stock_snapshots(codes):
+    """
+    Fetch detailed quote data for arbitrary stock codes.
+    Returns: {code: {"name","code","price","rate","amount","volume"}}
+    """
+    snapshots = {}
+    unique_codes = [code for code in dict.fromkeys(codes) if code]
+
+    def fetch_one(code):
+        url = f"https://finance.naver.com/item/main.naver?code={code}"
+        response = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'}, timeout=10)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.content.decode('utf-8', 'replace'), 'html.parser')
+        return _extract_stock_snapshot(soup, code)
+
+    max_workers = min(12, max(1, len(unique_codes)))
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        future_map = {executor.submit(fetch_one, code): code for code in unique_codes}
+        for future in as_completed(future_map):
+            code = future_map[future]
+            try:
+                snapshot = future.result()
+                if snapshot:
+                    snapshots[code] = snapshot
+            except Exception as e:
+                print(f"Error fetching snapshot for {code}: {e}")
+
+    return snapshots
 
 def get_market_indices():
     """

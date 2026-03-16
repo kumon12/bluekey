@@ -2,11 +2,26 @@ import streamlit as st
 import pandas as pd
 import time
 from datetime import datetime, timedelta, timezone
-from scraper import get_stock_info, get_market_indices, get_top_stocks
+from scraper import get_stock_info, get_market_indices, get_top_stocks, get_stock_snapshots
 from data_processor import clean_price, clean_rate
 from themes import get_theme
 
 st.set_page_config(page_title="Blue Key Project", layout="wide")
+
+
+@st.cache_data(ttl=20, show_spinner=False)
+def load_market_indices():
+    return get_market_indices()
+
+
+@st.cache_data(ttl=20, show_spinner=False)
+def load_top_stocks_cached(limit, sort_by):
+    return get_top_stocks(limit=limit, sort_by=sort_by)
+
+
+@st.cache_data(ttl=20, show_spinner=False)
+def load_stock_snapshots_cached(codes):
+    return get_stock_snapshots(list(codes))
 
 def style_rate(v):
     """Style function for Rate column (+ Red, - Blue, Bold)."""
@@ -23,7 +38,7 @@ with col_header:
     st.title("📈 Blue Key Project")
 
 with col_indices:
-    indices = get_market_indices()
+    indices = load_market_indices()
     if indices:
         i_c1, i_c2 = st.columns(2)
         
@@ -95,7 +110,7 @@ with tab1:
     
     # Fetch data (Sorting logic handled in scraper)
     # Fetch up to display_count stocks by trading value
-    raw_stocks = get_top_stocks(limit=display_count, sort_by='amount')
+    raw_stocks = load_top_stocks_cached(display_count, 'amount')
     
     filtered_stocks = []
     etf_keywords = ['KODEX', 'TIGER', 'KBSTAR', 'KOSEF', 'ACE', 'SOL', 'ARIRANG', 'HANARO', 'ETN', '인버스', '레버리지', '선물']
@@ -182,27 +197,48 @@ with tab1:
         # Collect themes from displayed stocks
         from themes import get_theme_list, get_theme_members
 
-        # Build quick quote lookup to keep legacy theme table format.
-        quote_lookup = {}
-        for s in raw_stocks + get_top_stocks(limit=100, sort_by='volume'):
-            code = s.get('code')
-            if not code:
-                continue
-            if code not in quote_lookup:
-                quote_lookup[code] = {
-                    'price': s.get('price', 0),
-                    'rate': s.get('rate', 0.0),
-                    'amount': s.get('amount', 0),
-                }
-        
         # Identify themes from filtered stocks
         active_themes = set()
         for stock in filtered_stocks:
             active_themes.update(get_theme_list(stock['name']))
+
+        quote_lookup = {}
+        preload_sources = list(raw_stocks) + list(load_top_stocks_cached(100, 'volume'))
+        for s in preload_sources:
+            code = s.get('code')
+            if not code:
+                continue
+            if code not in quote_lookup:
+                price = s.get('price', 0)
+                try:
+                    price = int(str(price).replace(',', ''))
+                except ValueError:
+                    price = 0
+                quote_lookup[code] = {
+                    'price': price,
+                    'rate': s.get('rate', 0.0),
+                    'amount': s.get('amount', 0),
+                }
+
+        member_codes = set()
+        theme_members_map = {}
+        for theme in sorted(list(active_themes)):
+            members = get_theme_members(theme)
+            if not members:
+                continue
+            theme_members_map[theme] = members
+            for member in members:
+                code = member.get('code', '')
+                if code:
+                    member_codes.add(code)
+
+        missing_codes = tuple(sorted(code for code in member_codes if code not in quote_lookup))
+        if missing_codes:
+            quote_lookup.update(load_stock_snapshots_cached(missing_codes))
             
         if active_themes:
             for theme in sorted(list(active_themes)):
-                members = get_theme_members(theme)
+                members = theme_members_map.get(theme, [])
                 if not members:
                     continue
                     
@@ -218,6 +254,7 @@ with tab1:
                         tdf['price'] = tdf['code'].apply(lambda c: quote_lookup.get(c, {}).get('price', 0))
                         tdf['rate'] = tdf['code'].apply(lambda c: quote_lookup.get(c, {}).get('rate', 0.0))
                         tdf['amount'] = tdf['code'].apply(lambda c: quote_lookup.get(c, {}).get('amount', 0))
+                        tdf = tdf.sort_values(by=['rate', 'amount'], ascending=[False, False], kind='stable')
                         # Link generation
                         tdf['Link'] = tdf.apply(lambda r: f"https://finance.naver.com/item/main.naver?code={r['code']}&name={urllib.parse.quote(r['name'])}", axis=1)
                         
