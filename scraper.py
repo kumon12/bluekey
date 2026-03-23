@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import re
 
 
 def _parse_int(text):
@@ -16,6 +17,13 @@ def _parse_rate(text):
         return float(raw)
     except ValueError:
         return 0.0
+
+
+def _extract_market_cap(text):
+    match = re.search(r"시가총액\(억\)\s*([\d,]+)", text or "")
+    if not match:
+        return 0
+    return _parse_int(match.group(1))
 
 
 def _extract_stock_snapshot(soup, code):
@@ -47,6 +55,8 @@ def _extract_stock_snapshot(soup, code):
     if amount == 0 and price and volume:
         amount = (price * volume) // 1000000
 
+    market_cap = _extract_market_cap(soup.get_text(" ", strip=True))
+
     return {
         "name": name,
         "code": code,
@@ -55,6 +65,7 @@ def _extract_stock_snapshot(soup, code):
         "rate": rate,
         "volume": volume,
         "amount": amount,
+        "market_cap": market_cap,
     }
 
 def get_stock_info(code):
@@ -393,3 +404,4 @@ def get_theme_details(theme_no):
     except Exception as e:
         print(f"Error fetching theme details for {theme_no}: {e}")
         return []
+
