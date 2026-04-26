@@ -6,7 +6,23 @@ from pathlib import Path
 from typing import Any
 
 import requests
-from dotenv import load_dotenv
+try:
+    from dotenv import load_dotenv
+except ImportError:
+    def load_dotenv(path, override=False):
+        path = Path(path)
+        if not path.exists():
+            return False
+        for raw_line in path.read_text(encoding='utf-8').splitlines():
+            line = raw_line.strip()
+            if not line or line.startswith('#') or '=' not in line:
+                continue
+            key, value = line.split('=', 1)
+            key = key.strip()
+            value = value.strip().strip('"').strip("'")
+            if override or key not in os.environ:
+                os.environ[key] = value
+        return True
 
 TOKEN_URL = '/oauth2/token'
 DEFAULT_BASE_URL = 'https://api.kiwoom.com'
