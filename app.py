@@ -8,7 +8,11 @@ import streamlit as st
 from kiwoom_provider import (
     KiwoomConfigurationError,
     KiwoomRequestError,
+    clear_local_credentials as clear_kiwoom_credentials,
+    get_masked_appkey,
+    has_credentials as has_kiwoom_credentials,
     get_status as get_kiwoom_status,
+    save_local_credentials as save_kiwoom_credentials,
     get_stock_snapshots as get_kiwoom_snapshots,
     get_top_stocks as get_kiwoom_top_stocks,
 )
@@ -162,6 +166,37 @@ with col_indices:
 
 with st.sidebar:
     st.header('Settings')
+    if 'show_kiwoom_key_form' not in st.session_state:
+        st.session_state.show_kiwoom_key_form = not has_kiwoom_credentials()
+
+    st.subheader('Kiwoom Login')
+    if has_kiwoom_credentials() and not st.session_state.show_kiwoom_key_form:
+        st.caption(f'Saved AppKey: {get_masked_appkey()}')
+        login_col1, login_col2 = st.columns(2)
+        if login_col1.button('Change Key', use_container_width=True):
+            st.session_state.show_kiwoom_key_form = True
+            st.rerun()
+        if login_col2.button('Logout', use_container_width=True):
+            clear_kiwoom_credentials()
+            st.cache_data.clear()
+            st.session_state.show_kiwoom_key_form = True
+            st.rerun()
+    else:
+        with st.form('kiwoom_credentials_form', clear_on_submit=False):
+            appkey_input = st.text_input('Kiwoom AppKey', type='password')
+            secretkey_input = st.text_input('Kiwoom SecretKey', type='password')
+            save_pressed = st.form_submit_button('Save Key', use_container_width=True)
+        if save_pressed:
+            try:
+                save_kiwoom_credentials(appkey_input, secretkey_input)
+                st.cache_data.clear()
+                st.session_state.show_kiwoom_key_form = False
+                st.rerun()
+            except KiwoomConfigurationError as exc:
+                st.error(str(exc))
+        st.caption('Stored locally in kiwoom.local.env on this machine.')
+
+    st.markdown('---')
     selected_source_label = st.selectbox('Top list source', list(DATA_SOURCE_OPTIONS.keys()), index=0)
     selected_source = DATA_SOURCE_OPTIONS[selected_source_label]
     refresh_rate = st.slider('Refresh Rate (seconds)', 5, 60, 10, key='refresh_slider')
@@ -175,7 +210,6 @@ with st.sidebar:
             st.warning(f'Kiwoom config incomplete. {kiwoom_message}')
             st.caption('Using Naver automatically if Kiwoom requests fail.')
 
-    st.markdown('---')
     st.subheader('Filter (Top List)')
     exclude_etf = st.checkbox('Exclude ETF/ETN', value=True)
     use_rate_filter = st.checkbox('Enable Rate Filter', value=True)

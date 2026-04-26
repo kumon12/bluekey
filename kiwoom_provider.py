@@ -21,6 +21,7 @@ DEFAULT_TOP_STOCKS_BODY = {
     'mang_stk_incls': '0',
     'stex_tp': '1',
 }
+LOCAL_ENV_FILENAME = 'kiwoom.local.env'
 
 _CODE_KEYS = ['code', 'stk_cd', 'stock_code', 'shrn_iscd', 'isu_cd', 'item_code', 'jongmok_code']
 _NAME_KEYS = ['name', 'stk_nm', 'stock_name', 'prdt_name', 'isu_nm', 'item_name', 'jongmok_name']
@@ -50,14 +51,16 @@ def load_kiwoom_env() -> None:
 
     base_dir = Path(__file__).resolve().parent
     candidates = [
+        base_dir / LOCAL_ENV_FILENAME,
         base_dir / 'kiwoom.env',
         base_dir / '.env',
+        base_dir.parent / LOCAL_ENV_FILENAME,
         base_dir.parent / 'kiwoom.env',
         base_dir.parent / '.env',
     ]
     for env_path in candidates:
         if env_path.exists():
-            load_dotenv(env_path, override=False)
+            load_dotenv(env_path, override=env_path.name == LOCAL_ENV_FILENAME)
 
     _env_loaded = True
 
@@ -65,6 +68,54 @@ def load_kiwoom_env() -> None:
 def _get_env(name: str, default: str = '') -> str:
     load_kiwoom_env()
     return os.getenv(name, default).strip()
+
+
+def _reset_runtime_state() -> None:
+    _token_cache['token'] = None
+    _token_cache['expires_at'] = 0.0
+
+
+def _local_env_path() -> Path:
+    return Path(__file__).resolve().parent / LOCAL_ENV_FILENAME
+
+
+def has_credentials() -> bool:
+    return bool(_get_env('KIWOOM_APPKEY') and _get_env('KIWOOM_SECRETKEY'))
+
+
+def get_masked_appkey() -> str:
+    appkey = _get_env('KIWOOM_APPKEY')
+    if not appkey:
+        return ''
+    if len(appkey) <= 8:
+        return '*' * len(appkey)
+    return f'{appkey[:4]}{"*" * (len(appkey) - 8)}{appkey[-4:]}'
+
+
+def save_local_credentials(appkey: str, secretkey: str) -> None:
+    appkey = appkey.strip()
+    secretkey = secretkey.strip()
+    if not appkey or not secretkey:
+        raise KiwoomConfigurationError('Both AppKey and SecretKey are required.')
+
+    content = (
+        '# Local Kiwoom credentials. Do not commit this file.\n'
+        f'KIWOOM_APPKEY={appkey}\n'
+        f'KIWOOM_SECRETKEY={secretkey}\n'
+    )
+    _local_env_path().write_text(content, encoding='utf-8')
+    os.environ['KIWOOM_APPKEY'] = appkey
+    os.environ['KIWOOM_SECRETKEY'] = secretkey
+    _reset_runtime_state()
+
+
+def clear_local_credentials() -> None:
+    local_env_path = _local_env_path()
+    if local_env_path.exists():
+        local_env_path.unlink()
+    os.environ.pop('KIWOOM_APPKEY', None)
+    os.environ.pop('KIWOOM_SECRETKEY', None)
+    _reset_runtime_state()
 
 
 def _parse_json_env(name: str, default: Any) -> Any:
