@@ -3,6 +3,8 @@ from bs4 import BeautifulSoup
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import re
 
+DEFAULT_HEADERS = {'User-Agent': 'Mozilla/5.0'}
+
 
 def _parse_int(text):
     text = (text or "").strip().replace(",", "")
@@ -24,6 +26,18 @@ def _extract_market_cap(text):
     if not match:
         return 0
     return _parse_int(match.group(1))
+
+
+def _parse_amount_millions(text):
+    text = (text or "").strip().replace(",", "")
+    if not text or text == "-":
+        return 0
+    if text.isdigit():
+        return int(text)
+    try:
+        return int(float(text))
+    except ValueError:
+        return 0
 
 
 def _extract_stock_snapshot(soup, code):
@@ -186,122 +200,96 @@ def get_top_stocks(limit=30, sort_by="volume"):
         list: List of dictionaries.
     """
     if sort_by == 'amount':
-        # Strategy: Merge 'Top Market Cap' (to get giants) and 'Top Volume' (to get active mid-caps)
-        # sise_market_sum returns Top Market Cap (we fetch KOSPI & KOSDAQ)
-        # sise_quant returns Top Volume (we fetch Top 100)
-        # Then we calculate Amount for all, deduplicate, and sort.
-        
-        urls = [
-            "https://finance.naver.com/sise/sise_market_sum.naver?sosok=0", # KOSPI Top 50 Market Cap
-            "https://finance.naver.com/sise/sise_market_sum.naver?sosok=1", # KOSDAQ Top 50 Market Cap
-            "https://finance.naver.com/sise/sise_quant.naver"              # Top 100 Volume
+        # Trading-value mode needs a wider candidate set than just one page.
+        # Merge a few pages of market-cap leaders and high-volume leaders, then sort by amount.
+        url_specs = [
+            ("https://finance.naver.com/sise/sise_market_sum.naver?sosok=0", 3),
+            ("https://finance.naver.com/sise/sise_market_sum.naver?sosok=1", 3),
+            ("https://finance.naver.com/sise/sise_quant.naver", 6),
         ]
-        
-        seen_names = set()
+
+        seen_codes = set()
         all_stocks = []
-        
-        for url in urls:
+
+        for base_url, pages in url_specs:
             try:
-                response = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'})
-                soup = BeautifulSoup(response.content.decode('euc-kr', 'replace'), 'html.parser')
-                table = soup.select_one('table.type_2')
-                if table:
+                for page in range(1, pages + 1):
+                    page_url = f"{base_url}&page={page}" if "?" in base_url else f"{base_url}?page={page}"
+                    response = requests.get(page_url, headers=DEFAULT_HEADERS, timeout=10)
+                    soup = BeautifulSoup(response.content.decode('euc-kr', 'replace'), 'html.parser')
+                    table = soup.select_one('table.type_2')
+                    if not table:
+                        continue
+
                     rows = table.select('tr')
                     for row in rows:
                         cols = row.select('td')
                         if not (len(cols) > 5 and cols[0].text.strip().isdigit()):
                             continue
-                        
+
                         try:
-                            # Name is key for deduplication
                             name_tag = cols[1].select_one('a')
                             if not name_tag:
                                 continue
+
                             name = name_tag.text.strip()
-                            
-                            # Extract Code from href
                             href = name_tag['href']
                             stock_code = href.split('=')[-1]
-                            
-                            if name in seen_names:
+                            if stock_code in seen_codes:
                                 continue
-                            
-                            # Parse data
-                            # Columns differ slightly but Name(1), Price(2), Change(3), Rate(4) are usually consistent
-                            # Volume index varies: 
-                            # sise_market_sum: Vol is index 9, Market Cap is index 6
-                            # sise_quant: Vol is index 5, No Market Cap
-                            
-                            is_quant = 'quant' in url
-                            
+
+                            is_quant = 'quant' in base_url
                             price_str = cols[2].text.strip()
-                            rate_str = cols[4].text.strip().strip()
-                            
+                            rate_str = cols[4].text.strip()
+                            price = _parse_int(price_str)
+                            rate_val = _parse_rate(rate_str)
+
                             market_cap_str = "-"
-                            
                             if is_quant:
-                                vol_str = cols[5].text.strip()
-                                # quant Market Cap is likely index 9
+                                volume = _parse_int(cols[5].text.strip())
+                                amount = _parse_amount_millions(cols[6].text.strip())
                                 if len(cols) > 9:
                                     market_cap_str = cols[9].text.strip()
                             else:
-                                vol_str = cols[9].text.strip() # Market Sum Volume Index
-                                market_cap_str = cols[6].text.strip() # Market Sum Cap Index
-                            
-                            price = int(price_str.replace(',', ''))
-                            volume = int(vol_str.replace(',', ''))
-                            amount = (price * volume) // 1000000 # Millions
-                            amt_str = f"{amount:,}"
-                            
-                            # Parse Market Cap to int
-                            market_cap_val = 0
-                            try:
-                                if market_cap_str != "-":
-                                    market_cap_val = int(market_cap_str.replace(',', ''))
-                            except:
-                                pass
-                            
-                            rate_val = 0.0
-                            clean_rate = rate_str.replace('%', '').strip()
-                            if clean_rate:
-                                rate_val = float(clean_rate)
-                                
+                                volume = _parse_int(cols[9].text.strip())
+                                amount = (price * volume) // 1000000
+                                market_cap_str = cols[6].text.strip()
+
+                            market_cap_val = _parse_int(market_cap_str) if market_cap_str != "-" else 0
                             item = {
                                 "code": stock_code,
                                 "name": name,
-                                "price": price, # Return Int
-                                "price_str": price_str, # Keep formatted if needed, but we used 'price' in app
+                                "price": price,
+                                "price_str": price_str,
                                 "rate_str": rate_str,
                                 "rate": rate_val,
                                 "volume": volume,
                                 "amount": amount,
-                                "amount_str": amt_str,
-                                "market_cap": market_cap_val, # Return Int
-                                "market_cap_str": market_cap_str 
+                                "amount_str": f"{amount:,}",
+                                "market_cap": market_cap_val,
+                                "market_cap_str": market_cap_str,
                             }
                             all_stocks.append(item)
-                            seen_names.add(name)
+                            seen_codes.add(stock_code)
                         except (ValueError, IndexError):
                             continue
             except Exception as e:
-                print(f"Error fetching {url}: {e}")
-                
-        # Sort merged list by Amount descending
+                print(f"Error fetching {base_url}: {e}")
+
         all_stocks.sort(key=lambda x: x['amount'], reverse=True)
-        
-        # Assign Ranks
+
         final_stocks = []
         for i, stock in enumerate(all_stocks[:limit]):
             stock['rank'] = i + 1
             final_stocks.append(stock)
-            
+
         return final_stocks
 
     else:
         # Use sise_quant for Top Volume
         url = "https://finance.naver.com/sise/sise_quant.naver"
         try:
-            response = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'})
+            response = requests.get(url, headers=DEFAULT_HEADERS, timeout=10)
             soup = BeautifulSoup(response.content.decode('euc-kr', 'replace'), 'html.parser')
             
             table = soup.select_one('table.type_2')

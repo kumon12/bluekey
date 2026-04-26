@@ -1,10 +1,17 @@
-import time
+﻿import time
 import urllib.parse
 from datetime import datetime, timedelta, timezone
 
 import pandas as pd
 import streamlit as st
 
+from kiwoom_provider import (
+    KiwoomConfigurationError,
+    KiwoomRequestError,
+    get_status as get_kiwoom_status,
+    get_stock_snapshots as get_kiwoom_snapshots,
+    get_top_stocks as get_kiwoom_top_stocks,
+)
 from scraper import get_market_indices, get_stock_info, get_stock_snapshots, get_top_stocks
 from themes import get_theme, get_theme_list, get_theme_members
 
@@ -24,7 +31,6 @@ ETF_KEYWORDS = [
     '인버스',
     '선물',
 ]
-
 TOP_COLUMNS = ['거래대금 순위', '종목명', '테마', '현재가', '등락률', '거래대금 (백만)', '시가총액 (억)']
 DETAIL_COLUMNS = ['종목명', '현재가', '등락률', '거래대금 (백만)', '시가총액 (억)']
 RATE_COL = '등락률'
@@ -32,20 +38,29 @@ PRICE_COL = '현재가'
 AMOUNT_COL = '거래대금 (백만)'
 MCAP_COL = '시가총액 (억)'
 NAME_COL = '종목명'
+DATA_SOURCE_OPTIONS = {
+    'Naver Finance': 'naver',
+    'Kiwoom REST API': 'kiwoom',
+}
+CACHE_VERSION = '2026-04-26-kiwoom-toplist-v2'
 
 
 @st.cache_data(ttl=20, show_spinner=False)
-def load_market_indices():
+def load_market_indices(cache_version: str):
     return get_market_indices()
 
 
 @st.cache_data(ttl=20, show_spinner=False)
-def load_top_stocks_cached(limit, sort_by):
+def load_top_stocks_cached(source: str, limit: int, sort_by: str, cache_version: str):
+    if source == 'kiwoom':
+        return get_kiwoom_top_stocks(limit=limit, sort_by=sort_by)
     return get_top_stocks(limit=limit, sort_by=sort_by)
 
 
 @st.cache_data(ttl=20, show_spinner=False)
-def load_stock_snapshots_cached(codes):
+def load_stock_snapshots_cached(source: str, codes: tuple[str, ...], cache_version: str):
+    if source == 'kiwoom':
+        return get_kiwoom_snapshots(list(codes))
     return get_stock_snapshots(list(codes))
 
 
@@ -72,20 +87,51 @@ def normalize_int(value, default=0):
         return default
 
 
-def prepare_quote_lookup(raw_stocks):
+def normalize_source(source: str) -> str:
+    return source if source in {'naver', 'kiwoom'} else 'naver'
+
+
+def prepare_quote_lookup(raw_stocks, source: str):
     quote_lookup = {}
-    preload_sources = list(raw_stocks) + list(load_top_stocks_cached(100, 'volume'))
+    preload_sources = list(raw_stocks)
+    if source == 'naver':
+        preload_sources.extend(load_top_stocks_cached('naver', 100, 'volume', CACHE_VERSION))
+
     for stock in preload_sources:
         code = stock.get('code')
         if not code or code in quote_lookup:
             continue
         quote_lookup[code] = {
             'price': normalize_int(stock.get('price', 0)),
-            'rate': stock.get('rate', 0.0),
+            'rate': float(pd.to_numeric(pd.Series([stock.get('rate', 0.0)]), errors='coerce').fillna(0.0).iloc[0]),
             'amount': normalize_int(stock.get('amount', 0)),
             'market_cap': normalize_int(stock.get('market_cap', 0)),
         }
     return quote_lookup
+
+
+def load_top_stocks_safe(source: str, limit: int, sort_by: str):
+    selected_source = normalize_source(source)
+    try:
+        return load_top_stocks_cached(selected_source, limit, sort_by, CACHE_VERSION), selected_source, None
+    except (KiwoomConfigurationError, KiwoomRequestError) as exc:
+        if selected_source == 'kiwoom':
+            fallback = load_top_stocks_cached('naver', limit, sort_by, CACHE_VERSION)
+            return fallback, 'naver', f'Kiwoom source unavailable. Falling back to Naver. {exc}'
+        raise
+
+
+def load_snapshots_safe(source: str, codes: set[str]):
+    selected_source = normalize_source(source)
+    if not codes:
+        return {}, None
+    try:
+        return load_stock_snapshots_cached(selected_source, tuple(sorted(codes)), CACHE_VERSION), None
+    except (KiwoomConfigurationError, KiwoomRequestError) as exc:
+        if selected_source == 'kiwoom':
+            fallback = load_stock_snapshots_cached('naver', tuple(sorted(codes)), CACHE_VERSION)
+            return fallback, f'Kiwoom snapshot request failed. Falling back to Naver. {exc}'
+        raise
 
 
 col_header, col_indices = st.columns([2.5, 1.5])
@@ -94,10 +140,9 @@ with col_header:
     st.title('Blue Key Project')
 
 with col_indices:
-    indices = load_market_indices()
+    indices = load_market_indices(CACHE_VERSION)
     if indices:
         index_col1, index_col2 = st.columns(2)
-
         kospi = indices.get('KOSPI', {})
         index_col1.metric(
             'KOSPI',
@@ -105,7 +150,6 @@ with col_indices:
             delta=kospi.get('rate', ''),
             delta_color='normal' if kospi.get('direction', 'up') == 'up' else 'inverse',
         )
-
         kosdaq = indices.get('KOSDAQ', {})
         index_col2.metric(
             'KOSDAQ',
@@ -118,8 +162,18 @@ with col_indices:
 
 with st.sidebar:
     st.header('Settings')
+    selected_source_label = st.selectbox('Top list source', list(DATA_SOURCE_OPTIONS.keys()), index=0)
+    selected_source = DATA_SOURCE_OPTIONS[selected_source_label]
     refresh_rate = st.slider('Refresh Rate (seconds)', 5, 60, 10, key='refresh_slider')
     auto_refresh = st.checkbox('Auto Refresh', value=False, key='auto_refresh_check')
+
+    if selected_source == 'kiwoom':
+        kiwoom_ready, kiwoom_message = get_kiwoom_status()
+        if kiwoom_ready:
+            st.caption(f'Kiwoom: {kiwoom_message}')
+        else:
+            st.warning(f'Kiwoom config incomplete. {kiwoom_message}')
+            st.caption('Using Naver automatically if Kiwoom requests fail.')
 
     st.markdown('---')
     st.subheader('Filter (Top List)')
@@ -147,6 +201,7 @@ with st.sidebar:
 tab1, tab2 = st.tabs(['Top Trading Value', 'Search Stock'])
 
 with tab1:
+    raw_stocks, effective_source, source_warning = load_top_stocks_safe(selected_source, display_count, 'amount')
     info_col1, info_col2 = st.columns(2)
     with info_col1:
         kst = timezone(timedelta(hours=9))
@@ -160,23 +215,23 @@ with tab1:
             st.caption('Filter: Rate Off')
 
     with info_col2:
+        st.caption(f'Selected source: {selected_source_label}')
+        st.caption(f'Effective source: {effective_source}')
         if exclude_etf:
             st.caption('ETF/ETN: Excluded')
 
-    raw_stocks = load_top_stocks_cached(display_count, 'amount')
+    if source_warning:
+        st.warning(source_warning)
 
     filtered_stocks = []
     for idx, stock in enumerate(raw_stocks):
         stock = dict(stock)
         stock['original_rank'] = idx + 1
-
         stock_rate = pd.to_numeric(pd.Series([stock.get('rate', 0.0)]), errors='coerce').fillna(0.0).iloc[0]
         if use_rate_filter and stock_rate < rate_threshold:
             continue
-
         if exclude_etf and any(keyword in stock.get('name', '') for keyword in ETF_KEYWORDS):
             continue
-
         stock['rate'] = float(stock_rate)
         filtered_stocks.append(stock)
 
@@ -184,10 +239,8 @@ with tab1:
         df = pd.DataFrame(filtered_stocks)
         df['DisplayRank'] = range(1, len(df) + 1)
         df['Link'] = df.apply(lambda row: build_stock_link(row.get('code', ''), row['name']), axis=1)
-
         if 'market_cap' not in df.columns:
             df['market_cap'] = 0
-
         df['price'] = pd.to_numeric(df['price'], errors='coerce').fillna(0).astype(int)
         df['rate'] = pd.to_numeric(df['rate'], errors='coerce').fillna(0.0)
         df['amount'] = pd.to_numeric(df['amount'], errors='coerce').fillna(0).astype(int)
@@ -196,7 +249,6 @@ with tab1:
 
         display_df = df[['DisplayRank', 'Link', 'theme', 'price', 'rate', 'amount', 'market_cap']].copy()
         display_df.columns = TOP_COLUMNS
-
         st.dataframe(
             display_df.style.map(style_rate, subset=[RATE_COL]).format(
                 {
@@ -226,10 +278,9 @@ with tab1:
         for stock in filtered_stocks:
             active_themes.update(get_theme_list(stock['name']))
 
-        quote_lookup = prepare_quote_lookup(raw_stocks)
+        quote_lookup = prepare_quote_lookup(raw_stocks, effective_source)
         theme_members_map = {}
         member_codes = set()
-
         for theme in sorted(active_themes):
             members = get_theme_members(theme)
             if not members:
@@ -240,9 +291,12 @@ with tab1:
                 if code:
                     member_codes.add(code)
 
-        missing_codes = tuple(sorted(code for code in member_codes if code not in quote_lookup))
+        missing_codes = {code for code in member_codes if code not in quote_lookup}
         if missing_codes:
-            quote_lookup.update(load_stock_snapshots_cached(missing_codes))
+            snapshots, snapshot_warning = load_snapshots_safe(effective_source, missing_codes)
+            quote_lookup.update(snapshots)
+            if snapshot_warning:
+                st.warning(snapshot_warning)
 
         if theme_members_map:
             for theme in sorted(theme_members_map):
@@ -258,12 +312,10 @@ with tab1:
                     tdf['rate'] = tdf['code'].apply(lambda c: quote_lookup.get(c, {}).get('rate', 0.0))
                     tdf['amount'] = tdf['code'].apply(lambda c: quote_lookup.get(c, {}).get('amount', 0))
                     tdf['market_cap'] = tdf['code'].apply(lambda c: quote_lookup.get(c, {}).get('market_cap', 0))
-
                     tdf['price'] = pd.to_numeric(tdf['price'], errors='coerce').fillna(0).astype(int)
                     tdf['rate'] = pd.to_numeric(tdf['rate'], errors='coerce').fillna(0.0)
                     tdf['amount'] = pd.to_numeric(tdf['amount'], errors='coerce').fillna(0).astype(int)
                     tdf['market_cap'] = pd.to_numeric(tdf['market_cap'], errors='coerce').fillna(0).astype(int)
-
                     tdf = tdf[~((tdf['rate'] < 20.0) & (tdf['market_cap'] < 500))]
                     tdf = tdf.sort_values(by=['rate', 'amount'], ascending=[False, False], kind='stable')
 
@@ -274,7 +326,6 @@ with tab1:
                     tdf['Link'] = tdf.apply(lambda row: build_stock_link(row.get('code', ''), row['name']), axis=1)
                     tdf_display = tdf[['Link', 'price', 'rate', 'amount', 'market_cap']].copy()
                     tdf_display.columns = DETAIL_COLUMNS
-
                     st.dataframe(
                         tdf_display.style.map(style_rate, subset=[RATE_COL]).format(
                             {
@@ -317,4 +368,4 @@ if auto_refresh:
     st.rerun()
 
 st.markdown('---')
-st.caption('Data source: Naver Finance')
+st.caption('Primary quote source: Naver Finance or Kiwoom REST API')
